@@ -1,38 +1,33 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TodoListApp.Services.Database;
-using TodoListApp.Services.Database.Entities;
+﻿using Microsoft.AspNetCore.Mvc;
+using TodoListApp.Services;
 
 namespace TodoListApp.WebApp.Controllers
 {
     public class TodoListController : Controller
     {
-        private readonly TodoListDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ITodoListService _todoListService;
 
-        public TodoListController(TodoListDbContext context, UserManager<IdentityUser> userManager)
+        public TodoListController(ITodoListService todoListService)
         {
-            _context = context;
-            _userManager = userManager;
+            _todoListService = todoListService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var currentUserID = _userManager.GetUserId(User);
-            var todoLists = await _context.TodoLists
-                                           .Where(t => t.UserId == currentUserID)
-                                           .ToListAsync();
+            var todoLists = await _todoListService.GetAllTodoListsAsync();
             return View(todoLists);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddTodoList(string title)
+        public async Task<IActionResult> DeleteTodoList(int id)
         {
-            var todoList = new TodoListEntity { Title = title, UserId = _userManager.GetUserId(User) };
-            _context.Add(todoList);
-            await _context.SaveChangesAsync();
+            bool result = await _todoListService.DeleteTodoListAsync(id);
+            if (!result)
+            {
+                return NotFound();
+            }
             return RedirectToAction(nameof(Index));
         }
+
     }
 }

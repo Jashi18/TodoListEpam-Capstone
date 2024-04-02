@@ -54,8 +54,7 @@ namespace TodoListApp.Services.Database.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -169,25 +168,25 @@ namespace TodoListApp.Services.Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TodoTasks",
+                name: "Tasks",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DueTo = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TodoListEntityId = table.Column<int>(type: "int", nullable: true)
+                    IsCompleted = table.Column<bool>(type: "bit", nullable: false),
+                    TodoListId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TodoTasks", x => x.Id);
+                    table.PrimaryKey("PK_Tasks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TodoTasks_TodoLists_TodoListEntityId",
-                        column: x => x.TodoListEntityId,
+                        name: "FK_Tasks_TodoLists_TodoListId",
+                        column: x => x.TodoListId,
                         principalTable: "TodoLists",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -230,9 +229,9 @@ namespace TodoListApp.Services.Database.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TodoTasks_TodoListEntityId",
-                table: "TodoTasks",
-                column: "TodoListEntityId");
+                name: "IX_Tasks_TodoListId",
+                table: "Tasks",
+                column: "TodoListId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -253,7 +252,7 @@ namespace TodoListApp.Services.Database.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "TodoTasks");
+                name: "Tasks");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

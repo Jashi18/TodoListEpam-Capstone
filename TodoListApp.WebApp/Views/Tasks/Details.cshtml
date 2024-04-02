@@ -1,0 +1,23 @@
+﻿@using TodoListApp.WebApi.Models
+
+
+@model TaskDto
+
+<h2>Task Details</h2>
+
+<div class="card">
+    <div class="card-header">
+        @Model.Title
+    </div>
+    <div class="card-body">
+        <p>@Model.Description</p>
+        <p><strong>Tags:</strong> @string.Join(", ", Model.Tags.Select(t => t.Name))</p>
+        <p><strong>Comments:</strong></p>
+        <ul>
+            @foreach (var comment in Model.Comments)
+            {
+                <li>@comment.Text</li>
+            }
+        </ul>
+    </div>
+</div>

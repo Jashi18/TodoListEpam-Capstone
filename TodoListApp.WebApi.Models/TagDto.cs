@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace TodoListApp.WebApi.Models
 {
-    public class TodoListDto
+    public class TagDto
     {
-        public int Id { get; set; } // Using int for ID
+        public int Id { get; set; }
         public string Name { get; set; }
-        public List<TaskDto> Tasks { get; set; } = new List<TaskDto>();
     }
 }

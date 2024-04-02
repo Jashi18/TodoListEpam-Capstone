@@ -1,18 +1,28 @@
-﻿@using TodoListApp.Services.Database.Entities
-@model IEnumerable<TodoListEntity>
+﻿@using TodoListApp.WebApi.Models
+@model IEnumerable<TodoListDto>
 
-<h2>My Todo Lists</h2>
+@{
+    ViewData["Title"] = "Todo Lists";
+}
+
+<h2>@ViewData["Title"]</h2>
 
 @foreach (var list in Model)
 {
-    <div>
-        @list.Title
-        <!-- Add link to view tasks or edit the list -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>@list.Name</h3>
+        </div>
+        <ul class="list-group list-group-flush">
+            @foreach (var task in list.Tasks)
+            {
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        @task.Title
+                        <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-primary btn-sm">View Details</a>
+                    </div>
+                </li>
+            }
+        </ul>
     </div>
 }
-
-<!-- Form to add a new todo list -->
-<form asp-action="AddTodoList" method="post">
-    <input type="text" name="title" required />
-    <button type="submit">Add Todo List</button>
-</form>

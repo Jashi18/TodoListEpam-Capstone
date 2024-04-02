@@ -1,6 +1,6 @@
 ﻿namespace TodoListApp.Services.Database.Entities
 {
-    public class TodoListEntity
+    public class TagEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

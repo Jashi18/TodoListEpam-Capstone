@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TodoListApp.Services.Database.Entities;
 using TodoListApp.WebApi.Models;
 
@@ -18,98 +13,210 @@ namespace TodoListApp.Services.Database.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<TodoListDto>> GetAllTodoListsAsync()
+        public async Task<TodoListDto> CreateTodoListAsync(TodoListDto todoListDto)
         {
-            var lists = await _context.TodoLists
-                .Include(l => l.Tasks)
-                .Select(list => new TodoListDto
-                {
-                    Id = list.Id,
-                    Title = list.Title,
-                    UserId = list.UserId,
-                    Tasks = list.Tasks.Select(task => new TodoTaskDto
-                    {
-                        Id = task.Id,
-                        Title = task.Title,
-                        Description = task.Description,
-                        CreatedDate = task.CreatedDate,
-                        DueTo = task.DueTo
-                    }).ToList()
-                }).ToListAsync();
-
-            return lists;
+            var todoList = new TodoListEntity { Name = todoListDto.Name };
+            _context.TodoLists.Add(todoList);
+            await _context.SaveChangesAsync();
+            return new TodoListDto { Id = todoList.Id, Name = todoList.Name };
         }
 
         public async Task<TodoListDto> GetTodoListByIdAsync(int id)
         {
-            var list = await _context.TodoLists
-                .Include(l => l.Tasks)
-                .FirstOrDefaultAsync(l => l.Id == id);
-
-            if (list == null) return null;
-
-            return new TodoListDto
-            {
-                Id = list.Id,
-                Title = list.Title,
-                UserId = list.UserId,
-                Tasks = list.Tasks.Select(task => new TodoTaskDto
-                {
-                    Id = task.Id,
-                    Title = task.Title,
-                    Description = task.Description,
-                    CreatedDate = task.CreatedDate,
-                    DueTo = task.DueTo
-                }).ToList()
-            };
+            var todoList = await _context.TodoLists.Include(t => t.Tasks).FirstOrDefaultAsync(t => t.Id == id);
+            if (todoList == null) return null;
+            return new TodoListDto { Id = todoList.Id, Name = todoList.Name, Tasks = todoList.Tasks.Select(t => new TaskDto { Id = t.Id, Title = t.Title, Description = t.Description, IsCompleted = t.IsCompleted }).ToList() };
         }
 
-        public async Task<TodoListDto> CreateTodoListAsync(TodoListDto todoListDto)
+        public async Task<IEnumerable<TodoListDto>> GetAllTodoListsAsync()
         {
-            var todoList = new TodoListEntity
+            var todoLists = await _context.TodoLists
+    .Include(t => t.Tasks)
+        .ThenInclude(task => task.Tags)
+    .Include(t => t.Tasks)
+        .ThenInclude(task => task.Comments)
+    .ToListAsync();
+            return todoLists.Select(tl => new TodoListDto
             {
-                Title = todoListDto.Title,
-                UserId = todoListDto.UserId,
-                Tasks = todoListDto.Tasks.Select(task => new TodoTaskEntity
+                Id = tl.Id,
+                Name = tl.Name,
+                Tasks = tl.Tasks.Select(t => new TaskDto
                 {
-                    Title = task.Title,
-                    Description = task.Description,
-                    DueTo = task.DueTo
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    IsCompleted = t.IsCompleted,
+                    TodoListId = t.TodoListId,
+                    Tags = t.Tags.Select(tag => new TagDto { Id = tag.Id, Name = tag.Name }).ToList(),
+                    Comments = t.Comments.Select(c => new CommentDto { Id = c.Id, Text = c.Text, CreatedAt = c.CreatedAt }).ToList()
                 }).ToList()
-            };
+            }).ToList();
+        }
 
-            _context.TodoLists.Add(todoList);
+        public async Task<TodoListDto> UpdateTodoListAsync(int id, TodoListDto todoListDto)
+        {
+            var todoList = await _context.TodoLists.FindAsync(id);
+            if (todoList == null) return null;
+            todoList.Name = todoListDto.Name;
             await _context.SaveChangesAsync();
-
-            todoListDto.Id = todoList.Id; // Update the DTO with the new ID.
             return todoListDto;
         }
 
-        public async Task UpdateTodoListAsync(TodoListDto todoListDto)
-        {
-            var todoList = await _context.TodoLists
-                .Include(l => l.Tasks)
-                .FirstOrDefaultAsync(l => l.Id == todoListDto.Id);
-
-            if (todoList != null)
-            {
-                todoList.Title = todoListDto.Title;
-                todoList.UserId = todoListDto.UserId;
-                // For simplicity, not updating tasks here. You might want to handle task updates separately.
-
-                _context.TodoLists.Update(todoList);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task DeleteTodoListAsync(int id)
+        public async Task<bool> DeleteTodoListAsync(int id)
         {
             var todoList = await _context.TodoLists.FindAsync(id);
-            if (todoList != null)
+            if (todoList == null) return false;
+            _context.TodoLists.Remove(todoList);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<TaskDto> AddTaskToTodoListAsync(int todoListId, TaskDto taskDto)
+        {
+            var todoList = await _context.TodoLists.FindAsync(todoListId);
+            if (todoList == null) return null;
+            var task = new TaskEntity { Title = taskDto.Title, Description = taskDto.Description, IsCompleted = taskDto.IsCompleted, TodoListId = todoListId };
+            _context.Tasks.Add(task);
+            await _context.SaveChangesAsync();
+            return new TaskDto { Id = task.Id, Title = task.Title, Description = task.Description, IsCompleted = task.IsCompleted, TodoListId = task.TodoListId };
+
+
+        }
+
+        public async Task<TaskDto> UpdateTaskAsync(int taskId, TaskDto taskDto)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null) return null;
+
+            task.Title = taskDto.Title;
+            task.Description = taskDto.Description;
+            task.IsCompleted = taskDto.IsCompleted;
+            await _context.SaveChangesAsync();
+
+            return new TaskDto
             {
-                _context.TodoLists.Remove(todoList);
+                Id = task.Id,
+                Title = task.Title,
+                Description = task.Description,
+                IsCompleted = task.IsCompleted,
+                TodoListId = task.TodoListId
+            };
+        }
+
+        public async Task<bool> DeleteTaskAsync(int taskId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null) return false;
+
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+
+        public async Task<TagDto> AddTagToTaskAsync(int taskId, TagDto tagDto)
+        {
+            var task = await _context.Tasks.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == taskId);
+            if (task == null) return null;
+
+            // Check if the tag already exists; if not, create a new one
+            var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tagDto.Name) ?? new TagEntity { Name = tagDto.Name };
+            if (!task.Tags.Contains(tag))
+            {
+                task.Tags.Add(tag);
                 await _context.SaveChangesAsync();
             }
+
+            return new TagDto { Id = tag.Id, Name = tag.Name };
+        }
+
+        public async Task<IEnumerable<TagDto>> GetTagsByTaskIdAsync(int taskId)
+        {
+            var tags = await _context.Tasks
+                .Where(t => t.Id == taskId)
+                .SelectMany(t => t.Tags)
+                .Select(tag => new TagDto { Id = tag.Id, Name = tag.Name })
+                .ToListAsync();
+
+            return tags;
+        }
+
+        public async Task<bool> RemoveTagFromTaskAsync(int taskId, int tagId)
+        {
+            var task = await _context.Tasks.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == taskId);
+            var tag = task?.Tags.FirstOrDefault(t => t.Id == tagId);
+            if (task == null || tag == null) return false;
+
+            task.Tags.Remove(tag);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<CommentDto> AddCommentToTaskAsync(int taskId, CommentDto commentDto)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null) return null;
+
+            var comment = new CommentEntity { Text = commentDto.Text, TaskId = taskId };
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            return new CommentDto { Id = comment.Id, Text = comment.Text, CreatedAt = comment.CreatedAt };
+        }
+
+        public async Task<IEnumerable<CommentDto>> GetCommentsByTaskIdAsync(int taskId)
+        {
+            var comments = await _context.Comments
+                .Where(c => c.TaskId == taskId)
+                .Select(c => new CommentDto { Id = c.Id, Text = c.Text, CreatedAt = c.CreatedAt })
+                .ToListAsync();
+
+            return comments;
+        }
+
+        public async Task<CommentDto> UpdateCommentAsync(int commentId, CommentDto commentDto)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null) return null;
+
+            comment.Text = commentDto.Text;
+            await _context.SaveChangesAsync();
+
+            return new CommentDto { Id = comment.Id, Text = comment.Text, CreatedAt = comment.CreatedAt };
+        }
+
+        public async Task<bool> DeleteCommentAsync(int commentId)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null) return false;
+
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<TaskDto> GetTaskByIdAsync(int taskId)
+        {
+            var taskEntity = await _context.Tasks
+                .Include(t => t.Tags)
+                .Include(t => t.Comments)
+                .FirstOrDefaultAsync(t => t.Id == taskId);
+
+            if (taskEntity == null) return null;
+
+            // Assuming you have a method or constructor to convert a TaskEntity to a TaskDto
+            var taskDto = new TaskDto
+            {
+                Id = taskEntity.Id,
+                Title = taskEntity.Title,
+                Description = taskEntity.Description,
+                IsCompleted = taskEntity.IsCompleted,
+                TodoListId = taskEntity.TodoListId,
+                Tags = taskEntity.Tags.Select(tag => new TagDto { Id = tag.Id, Name = tag.Name }).ToList(),
+                Comments = taskEntity.Comments.Select(comment => new CommentDto { Id = comment.Id, Text = comment.Text, CreatedAt = comment.CreatedAt }).ToList()
+            };
+
+            return taskDto;
         }
     }
 }

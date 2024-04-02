@@ -1,0 +1,18 @@
+﻿@using TodoListApp.Services.Database.Entities
+@model IEnumerable<TodoListEntity>
+
+<h2>My Todo Lists</h2>
+
+@foreach (var list in Model)
+{
+    <div>
+        @list.Title
+        <!-- Add link to view tasks or edit the list -->
+    </div>
+}
+
+<!-- Form to add a new todo list -->
+<form asp-action="AddTodoList" method="post">
+    <input type="text" name="title" required />
+    <button type="submit">Add Todo List</button>
+</form>

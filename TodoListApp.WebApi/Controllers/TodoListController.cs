@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TodoListApp.Services;
 using TodoListApp.WebApi.Models;
 
@@ -18,7 +19,8 @@ namespace TodoListApp.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTodoList([FromBody] TodoListDto todoListDto)
         {
-            var createdTodoList = await _todoListService.CreateTodoListAsync(todoListDto);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var createdTodoList = await _todoListService.CreateTodoListAsync(todoListDto, userId);
             return CreatedAtAction(nameof(GetTodoList), new { id = createdTodoList.Id }, createdTodoList);
         }
 
@@ -31,9 +33,9 @@ namespace TodoListApp.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTodoLists()
+        public async Task<IActionResult> GetAllTodoLists(string userId)
         {
-            var todoLists = await _todoListService.GetAllTodoListsAsync();
+            var todoLists = await _todoListService.GetAllTodoListsAsync(userId);
             return Ok(todoLists);
         }
 
@@ -100,7 +102,6 @@ namespace TodoListApp.WebApi.Controllers
             return NoContent();
         }
 
-        // Comment endpoints
         [HttpPost("tasks/{taskId}/comments")]
         public async Task<IActionResult> AddCommentToTask(int taskId, [FromBody] CommentDto commentDto)
         {

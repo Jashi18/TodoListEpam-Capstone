@@ -13,9 +13,9 @@ namespace TodoListApp.Services.Database.Services
             _context = context;
         }
 
-        public async Task<TodoListDto> CreateTodoListAsync(TodoListDto todoListDto)
+        public async Task<TodoListDto> CreateTodoListAsync(TodoListDto todoListDto, string userId)
         {
-            var todoList = new TodoListEntity { Name = todoListDto.Name };
+            var todoList = new TodoListEntity { Name = todoListDto.Name, UserId = userId };
             _context.TodoLists.Add(todoList);
             await _context.SaveChangesAsync();
             return new TodoListDto { Id = todoList.Id, Name = todoList.Name };
@@ -25,12 +25,13 @@ namespace TodoListApp.Services.Database.Services
         {
             var todoList = await _context.TodoLists.Include(t => t.Tasks).FirstOrDefaultAsync(t => t.Id == id);
             if (todoList == null) return null;
-            return new TodoListDto { Id = todoList.Id, Name = todoList.Name, Tasks = todoList.Tasks.Select(t => new TaskDto { Id = t.Id, Title = t.Title, Description = t.Description, IsCompleted = t.IsCompleted }).ToList() };
+            return new TodoListDto { Id = todoList.Id, Name = todoList.Name, Tasks = todoList.Tasks.Select(t => new TaskDto { Id = t.Id, Title = t.Title, Description = t.Description, IsCompleted = t.IsCompleted, Deadline=t.Deadline }).ToList() };
         }
 
-        public async Task<IEnumerable<TodoListDto>> GetAllTodoListsAsync()
+        public async Task<IEnumerable<TodoListDto>> GetAllTodoListsAsync(string userId)
         {
             var todoLists = await _context.TodoLists
+                .Where(t => t.UserId == userId)
     .Include(t => t.Tasks)
         .ThenInclude(task => task.Tags)
     .Include(t => t.Tasks)
@@ -47,6 +48,7 @@ namespace TodoListApp.Services.Database.Services
                     Description = t.Description,
                     IsCompleted = t.IsCompleted,
                     TodoListId = t.TodoListId,
+                    Deadline = t.Deadline,
                     Tags = t.Tags.Select(tag => new TagDto { Id = tag.Id, Name = tag.Name }).ToList(),
                     Comments = t.Comments.Select(c => new CommentDto { Id = c.Id, Text = c.Text, CreatedAt = c.CreatedAt }).ToList()
                 }).ToList()
@@ -75,10 +77,10 @@ namespace TodoListApp.Services.Database.Services
         {
             var todoList = await _context.TodoLists.FindAsync(todoListId);
             if (todoList == null) return null;
-            var task = new TaskEntity { Title = taskDto.Title, Description = taskDto.Description, IsCompleted = taskDto.IsCompleted, TodoListId = todoListId };
+            var task = new TaskEntity { Title = taskDto.Title, Description = taskDto.Description, IsCompleted = taskDto.IsCompleted, TodoListId = todoListId, Deadline = taskDto.Deadline };
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
-            return new TaskDto { Id = task.Id, Title = task.Title, Description = task.Description, IsCompleted = task.IsCompleted, TodoListId = task.TodoListId };
+            return new TaskDto { Id = task.Id, Title = task.Title, Description = task.Description, IsCompleted = task.IsCompleted, TodoListId = task.TodoListId, Deadline = taskDto.Deadline };
 
 
         }
@@ -119,7 +121,6 @@ namespace TodoListApp.Services.Database.Services
             var task = await _context.Tasks.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == taskId);
             if (task == null) return null;
 
-            // Check if the tag already exists; if not, create a new one
             var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tagDto.Name) ?? new TagEntity { Name = tagDto.Name };
             if (!task.Tags.Contains(tag))
             {
@@ -204,7 +205,6 @@ namespace TodoListApp.Services.Database.Services
 
             if (taskEntity == null) return null;
 
-            // Assuming you have a method or constructor to convert a TaskEntity to a TaskDto
             var taskDto = new TaskDto
             {
                 Id = taskEntity.Id,
@@ -212,6 +212,7 @@ namespace TodoListApp.Services.Database.Services
                 Description = taskEntity.Description,
                 IsCompleted = taskEntity.IsCompleted,
                 TodoListId = taskEntity.TodoListId,
+                Deadline = taskEntity.Deadline,
                 Tags = taskEntity.Tags.Select(tag => new TagDto { Id = tag.Id, Name = tag.Name }).ToList(),
                 Comments = taskEntity.Comments.Select(comment => new CommentDto { Id = comment.Id, Text = comment.Text, CreatedAt = comment.CreatedAt }).ToList()
             };

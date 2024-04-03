@@ -7,22 +7,44 @@
 
 <h2>@ViewData["Title"]</h2>
 
+<a href="@Url.Action("Create", "TodoList")" class="btn btn-success mb-3">Create Todo List</a>
+
 @foreach (var list in Model)
 {
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between">
             <h3>@list.Name</h3>
+            <div>
+                <a href="@Url.Action("Create", "Tasks", new { todoListId = list.Id })" class="btn btn-primary btn-sm">Create Task</a>
+                <a href="@Url.Action("Edit", new { id = list.Id })" class="btn btn-secondary btn-sm">Edit</a>
+                <form asp-action="Delete" asp-route-id="@list.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this todo list?');">Delete</button>
+                </form>
+            </div>
         </div>
-        <ul class="list-group list-group-flush">
-            @foreach (var task in list.Tasks)
-            {
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        @task.Title
-                        <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-primary btn-sm">View Details</a>
-                    </div>
-                </li>
-            }
-        </ul>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in list.Tasks)
+                {
+                    var rowClass = task.Deadline < DateTime.Now && task.IsCompleted != true ? "bg-danger" : "";
+                    <tr >
+                        <td class="@rowClass">@task.Title</td>
+                        <td class="@rowClass">@(task.IsCompleted ? "Completed" : "In Progress")</td>
+                        <td class="@rowClass">@task.Deadline.ToString("g")</td>
+                        <td>
+                            <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-info btn-sm">View Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 }

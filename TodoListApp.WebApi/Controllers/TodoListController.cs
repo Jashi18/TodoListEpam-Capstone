@@ -19,9 +19,9 @@ namespace TodoListApp.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTodoList([FromBody] TodoListDto todoListDto)
         {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var createdTodoList = await _todoListService.CreateTodoListAsync(todoListDto, userId);
-            return CreatedAtAction(nameof(GetTodoList), new { id = createdTodoList.Id }, createdTodoList);
+            var todoList = new TodoListDto { Id = todoListDto.Id, Name = todoListDto.Name, UserId = todoListDto.UserId };
+            await _todoListService.CreateTodoListAsync(todoList);
+            return Ok();
         }
 
         [HttpGet("{id}")]
@@ -61,6 +61,13 @@ namespace TodoListApp.WebApi.Controllers
             var addedTask = await _todoListService.AddTaskToTodoListAsync(todoListId, taskDto);
             if (addedTask == null) return NotFound();
             return Ok(addedTask);
+        }
+
+        [HttpGet("tasks/{taskId}")]
+        public async Task<IActionResult> GetTaskById(int taskId)
+        {
+            var task = await _todoListService.GetTaskByIdAsync(taskId);
+            return Ok(task);
         }
 
         [HttpPut("tasks/{taskId}")]

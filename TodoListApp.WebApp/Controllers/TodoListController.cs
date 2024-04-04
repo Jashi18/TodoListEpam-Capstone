@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TodoListApp.Services;
+using TodoListApp.Services.WebApi;
 using TodoListApp.WebApi.Models;
 using TodoListApp.WebApp.Models;
 
@@ -11,10 +12,10 @@ namespace TodoListApp.WebApp.Controllers
     [Authorize]
     public class TodoListController : Controller
     {
-        private readonly ITodoListService _todoListService;
+        private readonly TodoListWebApiService _todoListService;
         private readonly UserManager<IdentityUser> _userManager;
 
-        public TodoListController(ITodoListService todoListService, UserManager<IdentityUser> userManager)
+        public TodoListController(TodoListWebApiService todoListService, UserManager<IdentityUser> userManager)
         {
             _todoListService = todoListService;
             _userManager = userManager;
@@ -38,14 +39,6 @@ namespace TodoListApp.WebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateTodoList(TodoListDto todoListDto)
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var createdTodoList = await _todoListService.CreateTodoListAsync(todoListDto, userId);
-            return View(createdTodoList);
-        }
-
 
         [HttpGet]
         [Authorize]
@@ -61,17 +54,17 @@ namespace TodoListApp.WebApp.Controllers
             if (ModelState.IsValid)
             {
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var todoListDto = new TodoListDto { Name = model.Name};
-                var createdTodoList = await _todoListService.CreateTodoListAsync(todoListDto, userId);
 
-                if (createdTodoList != null)
+                var todoListDto = new TodoListDto
                 {
-                    return RedirectToAction("Index");
-                }
+                    Name = model.Name,
+                    UserId = userId,
+                };
 
-                ModelState.AddModelError("", "An error occurred creating the todo list.");
+                await _todoListService.CreateTodoListAsync(todoListDto);
+
+                    return RedirectToAction(nameof(Index));
             }
-
             return View(model);
         }
 

@@ -6,7 +6,7 @@ namespace TodoListApp.Services
     {
 
         // Methods for managing Lists
-        Task<TodoListDto> CreateTodoListAsync(TodoListDto todoListDto, string userId);
+        Task<TodoListDto> CreateTodoListAsync(TodoListDto todoListDto);
         Task<TodoListDto> GetTodoListByIdAsync(int id);
         Task<IEnumerable<TodoListDto>> GetAllTodoListsAsync(string userId);
         Task<TodoListDto> UpdateTodoListAsync(int id, TodoListDto todoListDto);

@@ -13,9 +13,9 @@ namespace TodoListApp.Services.Database.Services
             _context = context;
         }
 
-        public async Task<TodoListDto> CreateTodoListAsync(TodoListDto todoListDto, string userId)
+        public async Task<TodoListDto> CreateTodoListAsync(TodoListDto todoListDto)
         {
-            var todoList = new TodoListEntity { Name = todoListDto.Name, UserId = userId };
+            var todoList = new TodoListEntity { Name = todoListDto.Name, UserId = todoListDto.UserId };
             _context.TodoLists.Add(todoList);
             await _context.SaveChangesAsync();
             return new TodoListDto { Id = todoList.Id, Name = todoList.Name };
@@ -25,7 +25,7 @@ namespace TodoListApp.Services.Database.Services
         {
             var todoList = await _context.TodoLists.Include(t => t.Tasks).FirstOrDefaultAsync(t => t.Id == id);
             if (todoList == null) return null;
-            return new TodoListDto { Id = todoList.Id, Name = todoList.Name, Tasks = todoList.Tasks.Select(t => new TaskDto { Id = t.Id, Title = t.Title, Description = t.Description, IsCompleted = t.IsCompleted, Deadline=t.Deadline }).ToList() };
+            return new TodoListDto { Id = todoList.Id, Name = todoList.Name, Tasks = todoList.Tasks.Select(t => new TaskDto { Id = t.Id, Title = t.Title, Description = t.Description, IsCompleted = t.IsCompleted, Deadline = t.Deadline }).ToList() };
         }
 
         public async Task<IEnumerable<TodoListDto>> GetAllTodoListsAsync(string userId)

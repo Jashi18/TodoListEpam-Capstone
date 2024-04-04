@@ -10,6 +10,7 @@ namespace TodoListApp.WebApi.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string UserId { get; set; }
         public List<TaskDto> Tasks { get; set; } = new List<TaskDto>();
     }
 }

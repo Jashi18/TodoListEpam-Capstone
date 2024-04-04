@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TodoListApp.Services;
 using TodoListApp.Services.Database;
 using TodoListApp.Services.Database.Services;
+using TodoListApp.Services.WebApi;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TodoListDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -11,8 +12,8 @@ builder.Services.AddDbContext<TodoListDbContext>(options => options.UseSqlServer
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<TodoListDbContext>();
 
-builder.Services.AddScoped<ITodoListService, TodoListDatabaseService>();
-
+builder.Services.AddHttpClient<TodoListWebApiService>();
+builder.Services.AddHttpClient<TaskWebApiService>();
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();

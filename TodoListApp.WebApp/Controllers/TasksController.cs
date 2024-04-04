@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TodoListApp.Services;
+using TodoListApp.Services.WebApi;
 using TodoListApp.WebApi.Models;
 using TodoListApp.WebApp.Models;
 
@@ -7,17 +11,17 @@ namespace TodoListApp.WebApp.Controllers
 {
     public class TasksController : Controller
     {
-        private readonly ITodoListService _todoListService;
+        private readonly TaskWebApiService _taskService;
 
-        public TasksController(ITodoListService todoListService)
+        public TasksController(TaskWebApiService taskService)
         {
-            _todoListService = todoListService;
+            _taskService = taskService;
         }
 
-        [HttpGet("Details/{id}")]
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var taskDto = await _todoListService.GetTaskByIdAsync(id);
+            var taskDto = await _taskService.GetTaskByIdAsync(id);
             if (taskDto == null)
             {
                 return NotFound();
@@ -28,14 +32,14 @@ namespace TodoListApp.WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> MarkCompleted(int id, bool isCompleted)
         {
-            var taskDto = await _todoListService.GetTaskByIdAsync(id);
+            var taskDto = await _taskService.GetTaskByIdAsync(id);
             if (taskDto == null)
             {
                 return NotFound();
             }
 
             taskDto.IsCompleted = isCompleted;
-            await _todoListService.UpdateTaskAsync(id, taskDto);
+            await _taskService.UpdateTaskAsync(taskDto);
 
             return RedirectToAction("Details", new { id = id });
         }
@@ -61,7 +65,7 @@ namespace TodoListApp.WebApp.Controllers
                     Deadline = model.Deadline
                 };
 
-                await _todoListService.AddTaskToTodoListAsync(model.TodoListId, taskDto);
+                await _taskService.AddTaskToTodoListAsync(model.TodoListId, taskDto);
                 return RedirectToAction("Index", "TodoList", new { id = model.TodoListId });
             }
             return View(model);
@@ -70,8 +74,8 @@ namespace TodoListApp.WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var taskDto = await _todoListService.GetTaskByIdAsync(id);
-            await _todoListService.DeleteTaskAsync(id);
+            var taskDto = await _taskService.GetTaskByIdAsync(id);
+            await _taskService.DeleteTaskAsync(id);
             return RedirectToAction("Index", "TodoList", new { todoListId = taskDto.TodoListId });
         }
     }

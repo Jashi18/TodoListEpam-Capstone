@@ -25,7 +25,15 @@ namespace TodoListApp.Services.Database.Services
         {
             var todoList = await _context.TodoLists.Include(t => t.Tasks).FirstOrDefaultAsync(t => t.Id == id);
             if (todoList == null) return null;
-            return new TodoListDto { Id = todoList.Id, Name = todoList.Name, Tasks = todoList.Tasks.Select(t => new TaskDto { Id = t.Id, Title = t.Title, Description = t.Description, IsCompleted = t.IsCompleted, Deadline = t.Deadline }).ToList() };
+            return new TodoListDto { 
+                Id = todoList.Id, 
+                Name = todoList.Name, 
+                Tasks = todoList.Tasks.Select(t => new TaskDto { 
+                    Id = t.Id, 
+                    Title = t.Title, 
+                    Description = t.Description, 
+                    IsCompleted = t.IsCompleted, 
+                    Deadline = t.Deadline }).ToList() };
         }
 
         public async Task<IEnumerable<TodoListDto>> GetAllTodoListsAsync(string userId)
@@ -50,7 +58,10 @@ namespace TodoListApp.Services.Database.Services
                     TodoListId = t.TodoListId,
                     Deadline = t.Deadline,
                     Tags = t.Tags.Select(tag => new TagDto { Id = tag.Id, Name = tag.Name }).ToList(),
-                    Comments = t.Comments.Select(c => new CommentDto { Id = c.Id, Text = c.Text, CreatedAt = c.CreatedAt }).ToList()
+                    Comments = t.Comments.Select(c => new CommentDto { 
+                        Id = c.Id, 
+                        Text = c.Text, 
+                        CreatedAt = c.CreatedAt }).ToList()
                 }).ToList()
             }).ToList();
         }

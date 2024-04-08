@@ -6,7 +6,6 @@ namespace TodoListApp.Services.WebApi
     public class TodoListWebApiService
     {
         private readonly HttpClient _httpClient;
-        public string _baseUri = "https://localhost:7000/api/TodoList";
         public TodoListWebApiService(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -14,7 +13,7 @@ namespace TodoListApp.Services.WebApi
 
         public async Task<IEnumerable<TodoListDto>> GetAllTodoListsAsync(string userId)
         {
-            var response = await _httpClient.GetAsync($"{_baseUri}?userId={userId}");
+            var response = await _httpClient.GetAsync($"TodoList/?userId={userId}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -29,25 +28,25 @@ namespace TodoListApp.Services.WebApi
 
         public async Task<bool> CreateTodoListAsync(TodoListDto todoList)
         {
-            var response = await _httpClient.PostAsJsonAsync(_baseUri, todoList);
+            var response = await _httpClient.PostAsJsonAsync($"TodoList/", todoList);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> UpdateTodoListAsync(int id, TodoListDto todoList)
         {
-            var response = await _httpClient.PutAsJsonAsync($"{_baseUri}/{id}", todoList);
+            var response = await _httpClient.PutAsJsonAsync($"TodoList/{id}", todoList);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> DeleteTodoListAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"{_baseUri}/{id}");
+            var response = await _httpClient.DeleteAsync($"TodoList/{id}");
             return response.IsSuccessStatusCode;
         }
 
         public async Task<TodoListDto> GetTodoListByIdAsync(int id)
-        {
-            var response = await _httpClient.GetAsync($"https://localhost:7000/api/TodoList/{id}");
+        {   
+            var response = await _httpClient.GetAsync($"TodoList/{id}");
 
             if (response.IsSuccessStatusCode)
             {

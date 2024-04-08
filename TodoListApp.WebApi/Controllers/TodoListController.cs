@@ -19,7 +19,11 @@ namespace TodoListApp.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTodoList([FromBody] TodoListDto todoListDto)
         {
-            var todoList = new TodoListDto { Id = todoListDto.Id, Name = todoListDto.Name, UserId = todoListDto.UserId };
+            var todoList = new TodoListDto { 
+                Id = todoListDto.Id, 
+                Name = todoListDto.Name, 
+                UserId = todoListDto.UserId 
+            };
             await _todoListService.CreateTodoListAsync(todoList);
             return Ok();
         }

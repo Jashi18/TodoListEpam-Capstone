@@ -6,7 +6,6 @@ namespace TodoListApp.Services.WebApi
     public class CommentWebApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUri = "https://localhost:7000/api/Comment/comments";
 
         public CommentWebApiService(HttpClient httpClient)
         {
@@ -15,30 +14,35 @@ namespace TodoListApp.Services.WebApi
 
         public async Task<CommentDto> GetCommentByIdAsync(int commentId)
         {
-            return await _httpClient.GetFromJsonAsync<CommentDto>($"{_baseUri}/{commentId}");
+            return await _httpClient.GetFromJsonAsync<CommentDto>($"Comment/comments/{commentId}");
         }
 
         public async Task<IEnumerable<CommentDto>> GetCommentsByTaskIdAsync(int taskId)
         {
-            return await _httpClient.GetFromJsonAsync<IEnumerable<CommentDto>>($"{_baseUri}/task/{taskId}");
+            return await _httpClient.GetFromJsonAsync<IEnumerable<CommentDto>>($"Comment/tasks/{taskId}/comments");
         }
 
         public async Task<CommentDto> AddCommentToTaskAsync(int taskId, CommentDto commentDto)
         {
-            var response = await _httpClient.PostAsJsonAsync($"https://localhost:7000/api/Comment/tasks/{taskId}/comments", commentDto);
+            var response = await _httpClient.PostAsJsonAsync($"Comment/tasks/{taskId}/comments", commentDto);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<CommentDto>();
         }
 
         public async Task<bool> UpdateCommentAsync(CommentDto commentDto)
         {
-            var response = await _httpClient.PutAsJsonAsync($"{_baseUri}/{commentDto.Id}", commentDto);
+            var response = await _httpClient.PutAsJsonAsync($"Comment/comments/{commentDto.Id}", commentDto);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(errorContent);
+            }
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> DeleteCommentAsync(int commentId)
         {
-            var response = await _httpClient.DeleteAsync($"{_baseUri}/{commentId}");
+            var response = await _httpClient.DeleteAsync($"Comment/comments/{commentId}");
             return response.IsSuccessStatusCode;
         }
     }

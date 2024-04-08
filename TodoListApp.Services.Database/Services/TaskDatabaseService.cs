@@ -44,13 +44,13 @@ namespace TodoListApp.Services.Database.Services
         public async Task<bool> AddTagToTaskAsync(int taskId, int tagId)
         {
             var task = await _context.Tasks.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == taskId);
-            if (task == null) return false;
-
             var tag = await _context.Tags.FindAsync(tagId);
-            if (tag == null || task.Tags.Contains(tag)) return false;
+
+            if (task == null || tag == null) return false;
 
             task.Tags.Add(tag);
             await _context.SaveChangesAsync();
+
             return true;
         }
 
@@ -146,7 +146,11 @@ namespace TodoListApp.Services.Database.Services
                 TodoListId = taskEntity.TodoListId,
                 Deadline = taskEntity.Deadline,
                 Tags = taskEntity.Tags.Select(tag => new TagDto { Id = tag.Id, Name = tag.Name }).ToList(),
-                Comments = taskEntity.Comments.Select(comment => new CommentDto { Id = comment.Id, Text = comment.Text, CreatedAt = comment.CreatedAt }).ToList()
+                Comments = taskEntity.Comments.Select(comment => new CommentDto { 
+                    Id = comment.Id, 
+                    Text = comment.Text, 
+                    CreatedAt = comment.CreatedAt 
+                }).ToList()
             };
 
             return taskDto;

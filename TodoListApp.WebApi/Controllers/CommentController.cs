@@ -46,6 +46,16 @@ namespace TodoListApp.WebApi.Controllers
             if (updatedComment == null) return NotFound($"Comment with ID {commentId} not found.");
             return Ok(updatedComment);
         }
+        [HttpGet("comments/{commentId}")]
+        public async Task<IActionResult> GetCommentById(int commentId)
+        {
+            var comment = await _commentService.GetCommentByIdAsync(commentId);
+            if (comment == null)
+            {
+                return NotFound($"Comment with ID {commentId} not found.");
+            }
+            return Ok(comment);
+        }
 
         [HttpDelete("comments/{commentId}")]
         public async Task<IActionResult> DeleteComment(int commentId)

@@ -17,18 +17,49 @@ namespace TodoListApp.Services.Database.Services
         {
             var task = await _context.Tasks.FindAsync(taskId);
             if (task == null) return null;
-            var comment = new CommentEntity { Text = commentDto.Text, TaskId = taskId, UserName = commentDto.UserName};
+            var comment = new CommentEntity { 
+                Text = commentDto.Text, 
+                TaskId = taskId, 
+                UserName = commentDto.UserName
+            };
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
 
-            return new CommentDto { Id = comment.Id, Text = comment.Text, CreatedAt = comment.CreatedAt, UserName = comment.UserName };
+            return new CommentDto 
+            { 
+                Id = comment.Id, 
+                Text = comment.Text,
+                CreatedAt = comment.CreatedAt, 
+                UserName = comment.UserName 
+            };
+        }
+
+        public async Task<CommentDto> GetCommentByIdAsync(int commentId)
+        {
+            var comment = await _context.Comments
+                .Where(c => c.Id == commentId)
+                .Select(c => new CommentDto
+                {
+                    Id = c.Id,
+                    Text = c.Text,
+                    CreatedAt = c.CreatedAt,
+                    TaskId = c.TaskId,
+                    UserName = c.UserName
+                })
+                .FirstOrDefaultAsync();
+
+            return comment;
         }
 
         public async Task<IEnumerable<CommentDto>> GetCommentsByTaskIdAsync(int taskId)
         {
             var comments = await _context.Comments
                 .Where(c => c.TaskId == taskId)
-                .Select(c => new CommentDto { Id = c.Id, Text = c.Text, CreatedAt = c.CreatedAt })
+                .Select(c => new CommentDto { 
+                    Id = c.Id, Text = c.Text, 
+                    TaskId=c.TaskId, 
+                    CreatedAt = c.CreatedAt, 
+                    UserName = c.UserName })
                 .ToListAsync();
 
             return comments;
@@ -42,7 +73,11 @@ namespace TodoListApp.Services.Database.Services
             comment.Text = commentDto.Text;
             await _context.SaveChangesAsync();
 
-            return new CommentDto { Id = comment.Id, Text = comment.Text, CreatedAt = comment.CreatedAt };
+            return new CommentDto { 
+                Id = comment.Id, 
+                Text = comment.Text, 
+                CreatedAt = comment.CreatedAt 
+            };
         }
 
         public async Task<bool> DeleteCommentAsync(int commentId)

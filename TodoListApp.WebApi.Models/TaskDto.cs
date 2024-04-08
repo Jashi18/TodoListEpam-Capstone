@@ -15,6 +15,7 @@ namespace TodoListApp.WebApi.Models
         public bool IsCompleted { get; set; } = false;
         public DateTime Deadline { get; set; }
         public int TodoListId { get; set; }
+        public int? SelectedTagId { get; set; }
         public List<TagDto> Tags { get; set; } = new List<TagDto>();
         public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
         public string AssignedUserId { get; set; } = string.Empty;

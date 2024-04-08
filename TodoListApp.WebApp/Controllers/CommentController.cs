@@ -33,51 +33,55 @@ namespace TodoListApp.WebApp.Controllers
             {
                 return NotFound();
             }
+            ModelState.Remove("UserName");
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
+                return View(commentDto);
+            }
 
             if (ModelState.IsValid)
             {
+                var existingComment = await _commentService.GetCommentByIdAsync(id);
+                if (existingComment == null)
+                {
+                    return NotFound($"Comment with ID {id} not found.");
+                }
+
+                commentDto.UserName = existingComment.UserName;
+
                 var success = await _commentService.UpdateCommentAsync(commentDto);
                 if (!success)
                 {
-                    // Handle failure
                     ModelState.AddModelError("", "An error occurred while updating the comment.");
                     return View(commentDto);
                 }
 
-                // Redirect after successful update, adjust as needed
                 return RedirectToAction("Details", "Tasks", new { id = commentDto.TaskId });
             }
 
             return View(commentDto);
         }
 
-
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var comment = await _commentService.GetCommentByIdAsync(id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-            return View(comment);
-        }
-
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, string returnUrl = null)
         {
-            var success = await _commentService.DeleteCommentAsync(id);
+            bool success = await _commentService.DeleteCommentAsync(id);
             if (!success)
             {
-                // Handle failure
-                return NotFound();
+                return NotFound($"Comment with ID {id} not found.");
             }
 
-            // Redirect after successful deletion, adjust as needed
-            return RedirectToAction(nameof(Index)); // Assuming 'Index' lists the tasks or comments
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
+            return RedirectToAction("Index", "TodoList");
         }
-
-
     }
 }

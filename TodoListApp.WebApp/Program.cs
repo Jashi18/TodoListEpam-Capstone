@@ -7,15 +7,29 @@ using TodoListApp.Services.WebApi;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TodoListDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+var configuration = builder.Configuration;
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<TodoListDbContext>();
 
-builder.Services.AddHttpClient<TodoListWebApiService>();
-builder.Services.AddHttpClient<TaskWebApiService>();
-builder.Services.AddHttpClient<TagWebApiService>();
-builder.Services.AddHttpClient<CommentWebApiService>();
+builder.Services.AddHttpClient<TodoListWebApiService>(client =>
+{
+    client.BaseAddress = new Uri(configuration["ApiSettings:BaseUri"]);
+});
+
+builder.Services.AddHttpClient<TaskWebApiService>(client =>
+{
+    client.BaseAddress = new Uri(configuration["ApiSettings:BaseUri"]);
+});
+
+builder.Services.AddHttpClient<CommentWebApiService>(client =>
+{
+    client.BaseAddress = new Uri(configuration["ApiSettings:BaseUri"]);
+});
+builder.Services.AddHttpClient<TagWebApiService>(client =>
+{
+    client.BaseAddress = new Uri(configuration["ApiSettings:BaseUri"]);
+});
 
 
 // Add services to the container.

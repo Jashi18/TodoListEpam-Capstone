@@ -76,7 +76,10 @@ namespace TodoListApp.WebApi.Controllers
         public async Task<IActionResult> AddTagToTask(int taskId, int tagId)
         {
             var success = await _taskService.AddTagToTaskAsync(taskId, tagId);
-            if (!success) return NotFound("Task or Tag not found.");
+            if (!success)
+            {
+                return NotFound("Task or Tag not found.");
+            }
 
             return Ok("Tag added to task successfully.");
         }

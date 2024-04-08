@@ -32,7 +32,10 @@ namespace TodoListApp.WebApi.Controllers
         public async Task<IActionResult> GetTodoList(int id)
         {
             var todoList = await _todoListService.GetTodoListByIdAsync(id);
-            if (todoList == null) return NotFound();
+            if (todoList == null) 
+            { 
+                return NotFound(); 
+            }
             return Ok(todoList);
         }
 
@@ -47,7 +50,10 @@ namespace TodoListApp.WebApi.Controllers
         public async Task<IActionResult> UpdateTodoList(int id, [FromBody] TodoListDto todoListDto)
         {
             var updatedTodoList = await _todoListService.UpdateTodoListAsync(id, todoListDto);
-            if (updatedTodoList == null) return NotFound();
+            if (updatedTodoList == null)
+            {
+                return NotFound();
+            }
             return Ok(updatedTodoList);
         }
 
@@ -55,7 +61,10 @@ namespace TodoListApp.WebApi.Controllers
         public async Task<IActionResult> DeleteTodoList(int id)
         {
             var result = await _todoListService.DeleteTodoListAsync(id);
-            if (!result) return NotFound();
+            if (!result)
+            {
+                return NotFound();
+            }
             return NoContent();
         }
     }

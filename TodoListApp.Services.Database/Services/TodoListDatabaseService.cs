@@ -24,7 +24,10 @@ namespace TodoListApp.Services.Database.Services
         public async Task<TodoListDto> GetTodoListByIdAsync(int id)
         {
             var todoList = await _context.TodoLists.Include(t => t.Tasks).FirstOrDefaultAsync(t => t.Id == id);
-            if (todoList == null) return null;
+            if (todoList == null)
+            {
+                return null;
+            }
             return new TodoListDto { 
                 Id = todoList.Id, 
                 Name = todoList.Name, 
@@ -78,7 +81,10 @@ namespace TodoListApp.Services.Database.Services
         public async Task<bool> DeleteTodoListAsync(int id)
         {
             var todoList = await _context.TodoLists.FindAsync(id);
-            if (todoList == null) return false;
+            if (todoList == null)
+            {
+                return false;
+            }
             _context.TodoLists.Remove(todoList);
             await _context.SaveChangesAsync();
             return true;

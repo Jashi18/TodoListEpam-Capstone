@@ -15,7 +15,7 @@ namespace TodoListApp.Services.Database.Services
         public async Task<TagDto> AddTagToTaskAsync(int taskId, TagDto tagDto)
         {
             var task = await _context.Tasks.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == taskId);
-            if (task == null) return null;
+
 
             var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tagDto.Name) ?? new TagEntity { Name = tagDto.Name };
             if (!task.Tags.Contains(tag))

@@ -27,7 +27,10 @@ namespace TodoListApp.WebApi.Controllers
                 CreatedAt = DateTime.Now,
             };
             await _commentService.AddCommentToTaskAsync(taskId, comment);
-            if (comment == null) return NotFound($"Task with ID {taskId} not found.");
+            if (comment == null)
+            {
+                return NotFound($"Task with ID {taskId} not found.");
+            }
             return Ok(comment);
         }
 
@@ -43,7 +46,10 @@ namespace TodoListApp.WebApi.Controllers
         public async Task<IActionResult> UpdateComment(int commentId, [FromBody] CommentDto commentDto)
         {
             var updatedComment = await _commentService.UpdateCommentAsync(commentId, commentDto);
-            if (updatedComment == null) return NotFound($"Comment with ID {commentId} not found.");
+            if (updatedComment == null)
+            {
+                return NotFound($"Comment with ID {commentId} not found.");
+            }
             return Ok(updatedComment);
         }
         [HttpGet("comments/{commentId}")]
@@ -61,7 +67,10 @@ namespace TodoListApp.WebApi.Controllers
         public async Task<IActionResult> DeleteComment(int commentId)
         {
             var result = await _commentService.DeleteCommentAsync(commentId);
-            if (!result) return NotFound($"Comment with ID {commentId} not found.");
+            if (!result)
+            {
+                return NotFound($"Comment with ID {commentId} not found.");
+            }
             return NoContent();
         }
     }

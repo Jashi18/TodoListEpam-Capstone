@@ -14,7 +14,11 @@ namespace TodoListApp.Services.Database.Services
         public async Task<TaskDto> AddTaskToTodoListAsync(int todoListId, TaskDto taskDto)
         {
             var todoList = await _context.TodoLists.FindAsync(todoListId);
-            if (todoList == null) return null;
+            if (todoList == null) 
+            {
+                return null;
+            };
+
 
             var task = new TaskEntity
             {
@@ -57,7 +61,10 @@ namespace TodoListApp.Services.Database.Services
         public async Task<TaskDto> UpdateTaskAsync(int taskId, TaskDto taskDto)
         {
             var task = await _context.Tasks.FindAsync(taskId);
-            if (task == null) return null;
+            if (task == null)
+            {
+                return null;
+            }
 
             task.Title = taskDto.Title;
             task.Description = taskDto.Description;
@@ -121,7 +128,10 @@ namespace TodoListApp.Services.Database.Services
         public async Task<bool> DeleteTaskAsync(int taskId)
         {
             var task = await _context.Tasks.FindAsync(taskId);
-            if (task == null) return false;
+            if (task == null)
+            {
+                return false;
+            }
 
             _context.Tasks.Remove(task);
             await _context.SaveChangesAsync();
@@ -135,7 +145,10 @@ namespace TodoListApp.Services.Database.Services
                 .Include(t => t.Comments)
                 .FirstOrDefaultAsync(t => t.Id == taskId);
 
-            if (taskEntity == null) return null;
+            if (taskEntity == null)
+            {
+                return null;
+            }
 
             var taskDto = new TaskDto
             {

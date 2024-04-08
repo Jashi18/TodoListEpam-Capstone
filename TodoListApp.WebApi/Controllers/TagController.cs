@@ -85,7 +85,10 @@ namespace TodoListApp.WebApi.Controllers
         public async Task<IActionResult> RemoveTagFromTask(int taskId, int tagId)
         {
             var result = await _tagService.RemoveTagFromTaskAsync(taskId, tagId);
-            if (!result) return NotFound($"Tag with ID {tagId} or Task with ID {taskId} not found.");
+            if (!result)
+            {
+                return NotFound($"Tag with ID {tagId} or Task with ID {taskId} not found.");
+            }
             return NoContent();
         }
     }

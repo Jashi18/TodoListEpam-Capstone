@@ -1,0 +1,30 @@
+﻿@using TodoListApp.WebApi.Models
+@model IEnumerable<TagDto>
+
+@{
+    ViewData["Title"] = "Tags";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tag Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tag in Model)
+        {
+            <tr>
+                <td>@tag.Name</td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@tag.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Create New Tag</a>

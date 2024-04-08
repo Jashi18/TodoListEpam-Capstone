@@ -14,6 +14,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddHttpClient<TodoListWebApiService>();
 builder.Services.AddHttpClient<TaskWebApiService>();
+builder.Services.AddHttpClient<TagWebApiService>();
+builder.Services.AddHttpClient<CommentWebApiService>();
+
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();

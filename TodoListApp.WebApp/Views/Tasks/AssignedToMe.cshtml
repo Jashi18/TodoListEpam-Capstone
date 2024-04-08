@@ -1,0 +1,28 @@
+﻿@model IEnumerable<TodoListApp.WebApi.Models.TaskDto>
+
+<h2>Tasks Assigned to Me</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Deadline</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in Model)
+        {
+            var rowClass = task.Deadline < DateTime.Now && task.IsCompleted != true ? "bg-danger" : "";
+            <tr>
+                <td class="@rowClass">@task.Title</td>
+                <td class="@rowClass">@(task.IsCompleted ? "Completed" : "In Progress")</td>
+                <td class="@rowClass">@task.Deadline.ToString("g")</td>
+                <td>
+                    <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-info btn-sm">View Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

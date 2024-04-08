@@ -8,5 +8,6 @@ namespace TodoListApp.Services.Database.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public int TaskId { get; set; }
         public TaskEntity Task { get; set; }
+        public string UserName { get; set; }
     }
 }

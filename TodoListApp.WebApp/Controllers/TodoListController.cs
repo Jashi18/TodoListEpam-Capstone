@@ -71,17 +71,28 @@ namespace TodoListApp.WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var todoList = await _todoListService.GetTodoListByIdAsync(id);
-            if (todoList == null) return NotFound();
-
-            return View(todoList);
+            var todoListDto = await _todoListService.GetTodoListByIdAsync(id);
+            if (todoListDto == null)
+            {
+                return NotFound();
+            }
+            return View(todoListDto);
         }
 
+
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, TodoListDto todoListDto)
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            todoListDto.UserId = userId;
+            ModelState.Remove("UserId");
+            if (id != todoListDto.Id)
+            {
+                return NotFound();
+            }
             if (!ModelState.IsValid)
             {
                 foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
@@ -90,9 +101,21 @@ namespace TodoListApp.WebApp.Controllers
                 }
                 return View(todoListDto);
             }
-            await _todoListService.UpdateTodoListAsync(id, todoListDto);
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                bool success = await _todoListService.UpdateTodoListAsync(id, todoListDto);
+                if (success)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ModelState.AddModelError("", "An error occurred while updating the todo list.");
+                }
+            }
+            return View(todoListDto);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)

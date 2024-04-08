@@ -22,6 +22,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="TodoList" asp-action="Index">Todo Lists</a>
                         </li>
+                        <a class="nav-link" asp-controller="Tasks" asp-action="AssignedToMe">My Assigned Tasks</a>
+                        <a class="nav-link" asp-controller="Tag" asp-action="Create">Create Tag</a>
+
                     </ul>
                     @if (User.Identity.IsAuthenticated)
                     {

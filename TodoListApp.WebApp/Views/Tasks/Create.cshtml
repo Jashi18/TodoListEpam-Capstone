@@ -27,9 +27,12 @@
         <span asp-validation-for="Deadline" class="text-danger"></span>
     </div>
 
-    <div class="form-check">
-        <input asp-for="IsCompleted" class="form-check-input" />
-        <label asp-for="IsCompleted" class="form-check-label">Completed</label>
+    <div class="form-group">
+        <label asp-for="AssignedUserId">Assign To</label>
+        <select asp-for="AssignedUserId" asp-items="@Model.Users" class="form-control">
+            <option value="">Please select a user</option>
+        </select>
+        <span asp-validation-for="AssignedUserId" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>

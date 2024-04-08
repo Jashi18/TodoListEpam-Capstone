@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,5 +17,6 @@ namespace TodoListApp.WebApi.Models
         public int TodoListId { get; set; }
         public List<TagDto> Tags { get; set; } = new List<TagDto>();
         public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
+        public string AssignedUserId { get; set; } = string.Empty;
     }
 }

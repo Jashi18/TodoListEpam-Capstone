@@ -9,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TodoListDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ITodoListService, TodoListDatabaseService>();
+builder.Services.AddScoped<ITaskService, TaskDatabaseService>();
+builder.Services.AddScoped<ITagService, TagDatabaseService>();
+builder.Services.AddScoped<ICommentService, CommentDatabaseService>();
+
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

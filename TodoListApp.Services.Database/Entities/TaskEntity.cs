@@ -11,5 +11,6 @@
         public TodoListEntity TodoList { get; set; }
         public ICollection<TagEntity> Tags { get; set; } = new List<TagEntity>();
         public ICollection<CommentEntity> Comments { get; set; } = new List<CommentEntity>();
+        public string AssignedUserId { get; set; }
     }
 }
